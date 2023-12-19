@@ -1,0 +1,24 @@
+version: '3'
+services:
+  neptune:
+    container_name: neptune
+    image: tinkerpop/gremlin-server
+    ports:
+      - 8182:8182
+    environment:
+      VIRTUAL_HOST: gremlin.docker
+      VIRTUAL_PORT: 8182
+
+# docker run -d -p 8080:80 ghcr.io/armandleopold/graphexp
+  neptune-ui:
+    image: ghcr.io/armandleopold/graphexp
+    ports:
+      - "8080:80"
+    depends_on:
+      - neptune
+#     networks:
+#       - neptune-ui
+
+# networks:
+#   neptune-ui:
+   
