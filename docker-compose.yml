@@ -8,17 +8,16 @@ services:
     environment:
       VIRTUAL_HOST: gremlin.docker
       VIRTUAL_PORT: 8182
+  # janusgraph:
+  #   image: docker.io/janusgraph/janusgraph:latest
+  #   container_name: janusgraph
+  #   ports:
+  #     - "8182:8182"
+    # The mounted volume only makes sense if JanusGraph is being run with the BerekeleyDB storage.
 
-# docker run -d -p 8080:80 ghcr.io/armandleopold/graphexp
   neptune-ui:
     image: ghcr.io/armandleopold/graphexp
     ports:
       - "8080:80"
     depends_on:
       - neptune
-#     networks:
-#       - neptune-ui
-
-# networks:
-#   neptune-ui:
-   
