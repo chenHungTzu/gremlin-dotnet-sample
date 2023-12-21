@@ -1,23 +1,21 @@
 version: '3'
 services:
-  neptune:
-    container_name: neptune
-    image: tinkerpop/gremlin-server
-    ports:
-      - 8182:8182
-    environment:
-      VIRTUAL_HOST: gremlin.docker
-      VIRTUAL_PORT: 8182
-  # janusgraph:
-  #   image: docker.io/janusgraph/janusgraph:latest
-  #   container_name: janusgraph
+  # neptune:
+  #   container_name: neptune
+  #   image: tinkerpop/gremlin-server
   #   ports:
-  #     - "8182:8182"
-    # The mounted volume only makes sense if JanusGraph is being run with the BerekeleyDB storage.
-
+  #     - 8182:8182
+  #   environment:
+  #     VIRTUAL_HOST: gremlin.docker
+  #     VIRTUAL_PORT: 8182
+  janusgraph:
+    image: docker.io/janusgraph/janusgraph:latest
+    container_name: janusgraph
+    ports:
+      - "8182:8182"
   neptune-ui:
     image: ghcr.io/armandleopold/graphexp
     ports:
       - "8080:80"
     depends_on:
-      - neptune
+      - janusgraph

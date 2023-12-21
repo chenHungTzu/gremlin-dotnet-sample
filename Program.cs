@@ -2,6 +2,10 @@
 using Gremlin.Net.Driver;
 using Gremlin.Net.Driver.Remote;
 using Gremlin.Net.Process.Traversal;
+using Gremlin.Net.Structure;
+using Gremlin.Net.Structure.IO.GraphBinary;
+using JanusGraph.Net.IO.GraphBinary;
+using JanusGraph.Net.IO.GraphSON;
 using static Gremlin.Net.Process.Traversal.AnonymousTraversalSource;
 
 
@@ -10,28 +14,36 @@ class Program
      static async Task Main(string[] args)
      {
 
+
           var endpoint = "localhost";
           var gremlinServer = new GremlinServer(endpoint, 8182, enableSsl: false);
 
-          using var gremlinClient = new GremlinClient(gremlinServer);
+          using var gremlinClient = new GremlinClient(gremlinServer,new GraphBinaryMessageSerializer(JanusGraphTypeSerializerRegistry.Instance));
           var remoteConnection = new DriverRemoteConnection(gremlinClient, "g");
 
           await gremlinClient.SubmitAsync<dynamic>("g.V().drop()");
           var g = Traversal().WithRemote(remoteConnection);
 
+      
           try
           {
+               
+             
                // add node  (identity , ticket , group) 
                g.AddV("Identity").Property("tenantId", "Identity1").Next();
                g.AddV("Identity").Property("tenantId", "Identity2").Next();
                g.AddV("Identity").Property("tenantId", "Identity3").Next();
 
-               g.AddV("TicketBook").Property("id", "TicketBook1").Next();
-               g.AddV("TicketBook").Property("id", "TicketBook2").Next();
-               g.AddV("TicketBook").Property("id", "TicketBook3").Next();
-               g.AddV("TicketBook").Property("id", "TicketBook4").Next();
-               g.AddV("group").Property("id", "Identity2's group").Next();
 
+               //  add node  (transaction)
+               var transaction = g.Tx();
+               var batch = transaction.Begin();
+               batch.AddV("TicketBook").Property("id", "TicketBook1").Next();
+               batch.AddV("TicketBook").Property("id", "TicketBook2").Next();
+               batch.AddV("TicketBook").Property("id", "TicketBook3").Next();
+               batch.AddV("TicketBook").Property("id", "TicketBook4").Next();
+               batch.AddV("group").Property("id", "Identity2's group").Next();
+               await transaction.CommitAsync();
 
                // add relationship (emit)
                g.V().HasLabel("Identity")
