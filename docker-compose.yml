@@ -8,14 +8,45 @@ services:
   #   environment:
   #     VIRTUAL_HOST: gremlin.docker
   #     VIRTUAL_PORT: 8182
+
+  cassandra:
+    image: cassandra:3.11
+    container_name: cassandra
+    environment:
+      - CASSANDRA_START_RPC=true
+    ports:
+      - "9160:9160"
+      - "9042:9042"
+      - "7199:7199"
+      - "7001:7001"
+      - "7000:7000" 
   janusgraph:
-    image: docker.io/janusgraph/janusgraph:latest
+    image: janusgraph/janusgraph:latest
     container_name: janusgraph
     ports:
       - "8182:8182"
+    depends_on:
+      - cassandra
+    environment:
+      - graph.set-vertex-id=true
+      - graph.allow-custom-vid-types=true
+    volumes:
+      - "./config/janusgraph.properties:/etc/opt/janusgraph/janusgraph.properties:ro"
+  # janusgraph:
+  #   image: docker.io/janusgraph/janusgraph:latest
+  #   container_name: janusgraph
+  #   environment:
+  #     - graph.set-vertex-id=true
+  #     - graph.allow-custom-vid-types=true
+  #     - janusgraph.set-vertex-id=true
+  #     - set-vertex-id=true
+  #     - janusgraph.storage.backend=berkeleyje
+  #     - storage.backend=berkeleyje
+  #   ports:
+  #     - "8182:8182"
   neptune-ui:
     image: ghcr.io/armandleopold/graphexp
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - janusgraph
